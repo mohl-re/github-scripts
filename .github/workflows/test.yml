@@ -1,23 +1,30 @@
-name: Learning GitHub Script
+name: Node.js Package
+
 on:
-  issues:
-    types: [opened]
+  push:
+    branches:
+      - main
 jobs:
-  comment:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/github-script@0.8.0
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-            github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: "🎉 You've created this issue comment using GitHub Script!!!"
-            })
-            github.projects.createCard({
-            column_id: {{columnID}},
-            content_id: context.payload.issue.id,
-            content_type: "Issue"
-            });
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 12
+      - run: npm ci
+      - run: npm test
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 12
+          registry-url: https://npm.pkg.github.com/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
