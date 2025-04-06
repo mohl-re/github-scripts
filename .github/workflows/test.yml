@@ -7,6 +7,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        color: ["g","p"]
+        test: ["o","m"]
+        include: 
+          - color: b
+            test: o
+          - color: p
+            test: m  
+          
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
